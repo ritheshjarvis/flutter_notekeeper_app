@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:io';
@@ -19,7 +20,7 @@ class DatabaseHelper {
 
   factory DatabaseHelper() {
     // This is executed only once, singleton object
-    if (_databaseHelper != null) {
+    if (_databaseHelper == null) {
       _databaseHelper = DatabaseHelper._createInstance();
     }
 
@@ -35,19 +36,21 @@ class DatabaseHelper {
 
   Future<Database> initializeDatabase() async {
     //  Get the directory path for both Android and iOS to store Database.
+    print('-----------------------------> sdfdf123');
     Directory directory = await getApplicationDocumentsDirectory();
     String path = directory.path + 'notes.db';
+    print('sdfdf');
 
     //  Open/create the database at a given path
     var notesDatabse =
-    await openDatabase(path, version: 1, onCreate: _createDb);
+        await openDatabase(path, version: 1, onCreate: _createDb);
     return notesDatabse;
   }
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
         'CREATE TABLE $noteTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, '
-            '$colTitle TEXT, $colDescription TEXT, $colPriority INTEGER, $colDate TEXT)');
+        '$colTitle TEXT, $colDescription TEXT, $colPriority INTEGER, $colDate TEXT)');
   }
 
   // Fetch Operation: Get all note objects from database
@@ -55,12 +58,14 @@ class DatabaseHelper {
     Database db = await this.database;
 
     var result =
-    await db.rawQuery('SELECT * FROM $noteTable order by $colPriority ASC');
+        await db.rawQuery('SELECT * FROM $noteTable order by $colPriority ASC');
     return result;
   }
 
   //Insert Operation: Insert a Note Object ot Database
   Future<int> insertNote(Note note) async {
+    print("insertNote-------------------");
+    print(database);
     Database db = await this.database;
     var result = await db.insert(noteTable, note.toMap());
     return result;
@@ -79,16 +84,29 @@ class DatabaseHelper {
   Future<int> deleteNote(int id) async {
     Database db = await this.database;
     int result =
-    await db.rawDelete('DELETE FROM $noteTable WHERE $colId = $id');
+        await db.rawDelete('DELETE FROM $noteTable WHERE $colId = $id');
     return result;
   }
 
   // Get number of Note Objects in database
   Future<int> getCount() async {
     Database db = await this.database;
-    List<Map<String, dynamic>> x = await db.rawQuery(
-        'SELECT COUNT (*) from $noteTable');
+    List<Map<String, dynamic>> x =
+        await db.rawQuery('SELECT COUNT (*) from $noteTable');
     int result = Sqflite.firstIntValue(x);
     return result;
+  }
+
+  // Get the 'Map List' [List<Map>] and convert it to 'Note List' [List<Note>]
+  Future<List<Note>> getNoteList() async {
+    var noteMapList = await getNoteMapList(); // Get 'Map List' from database
+    int count = noteMapList.length;
+
+    List<Note> noteList = List<Note>();
+    // For loop to create a 'Note List' from a 'Map List'
+    for (int i = 0; i < count; i++) {
+      noteList.add(Note.fromMapObject(noteMapList[i]));
+    }
+    return noteList;
   }
 }

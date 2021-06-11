@@ -1,5 +1,3 @@
-import 'dart:html';
-
 class Note {
   int _id;
   String _title;
@@ -13,7 +11,7 @@ class Note {
   Note.withID(this._id, this._title, this._date, this._priority,
       [this._description]);
 
-  int get id => id;
+  int get id => _id;
 
   int get priority => _priority;
 
@@ -26,6 +24,12 @@ class Note {
   set title(String newTitle) {
     if (newTitle.length <= 255) {
       this._title = newTitle;
+    }
+  }
+
+  set description(String newDescription) {
+    if (newDescription.length <= 255) {
+      this._description = newDescription;
     }
   }
 
