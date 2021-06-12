@@ -22,12 +22,15 @@ class NoteDetail extends StatefulWidget {
 class NoteDetailState extends State<NoteDetail> {
   static var _priorities = ['High', 'Low'];
   DatabaseHelper helper = DatabaseHelper();
+
   // var selectedValue = _priorities[0];
   final String appBarTitle;
   final Note note;
 
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+
+  var _formKey = GlobalKey<FormState>();
 
   NoteDetailState(this.note, this.appBarTitle);
 
@@ -53,103 +56,118 @@ class NoteDetailState extends State<NoteDetail> {
                 },
               ),
             ),
-            body: Padding(
-              padding: EdgeInsets.all(15.0),
-              child: ListView(
-                children: [
-                  ListTile(
-                      title: DropdownButton(
-                    items: _priorities.map((String dropDownStringItem) {
-                      return DropdownMenuItem(
-                        value: dropDownStringItem,
-                        child: Text(dropDownStringItem),
-                      );
-                    }).toList(),
-                    style: textStyle,
-                    value: getPriorityAsString(note.priority),
-                    onChanged: (valueSelectedByUser) {
-                      setState(() {
-                        debugPrint("The Selected Value: $valueSelectedByUser");
-                        updatePriorityAsInt(valueSelectedByUser);
-                        print("here ---> ${note.priority}");
-                      });
-                    },
-                  )),
-                  Padding(
-                    padding: EdgeInsets.only(top: 15.0),
-                    child: TextField(
-                      controller: titleController,
-                      style: textStyle,
-                      onChanged: (value) {
-                        debugPrint("The changed value: $value");
-                        updateTitle();
-                      },
-                      decoration: InputDecoration(
-                          labelText: "Title",
-                          hintText: "Enter the Title",
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0))),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 15.0),
-                    child: TextField(
-                      controller: descriptionController,
-                      style: textStyle,
-                      onChanged: (value) {
-                        debugPrint("The changed value: $value");
-                        updateDescription();
-                      },
-                      decoration: InputDecoration(
-                          labelText: "Description",
-                          hintText: "Enter the Description",
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0))),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 15.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: RaisedButton(
-                          child: Text(
-                            "Save",
-                            textScaleFactor: 1.5,
-                          ),
-                          textColor: Theme.of(context).primaryColorLight,
-                          color: Theme.of(context).primaryColorDark,
-                          onPressed: () {
-                            setState(() {
-                              debugPrint("Save Button clicked");
-                              _save();
-                            });
+            body: Form(
+                key: _formKey,
+                child: Padding(
+                  padding: EdgeInsets.all(15.0),
+                  child: ListView(
+                    children: [
+                      ListTile(
+                          title: DropdownButton(
+                        items: _priorities.map((String dropDownStringItem) {
+                          return DropdownMenuItem(
+                            value: dropDownStringItem,
+                            child: Text(dropDownStringItem),
+                          );
+                        }).toList(),
+                        style: textStyle,
+                        value: getPriorityAsString(note.priority),
+                        onChanged: (valueSelectedByUser) {
+                          setState(() {
+                            debugPrint(
+                                "The Selected Value: $valueSelectedByUser");
+                            updatePriorityAsInt(valueSelectedByUser);
+                            print("here ---> ${note.priority}");
+                          });
+                        },
+                      )),
+                      Padding(
+                        // 1 Element - Title Field
+                        padding: EdgeInsets.only(top: 15.0),
+                        child: TextFormField(
+                          validator: (String val) {
+                            if (val.isEmpty) {
+                              return "Please Enter Title";
+                            }
                           },
-                        )),
-                        Container(
-                          width: 10.0,
+                          controller: titleController,
+                          style: textStyle,
+                          onChanged: (value) {
+                            debugPrint("The changed value: $value");
+                            updateTitle();
+                          },
+                          decoration: InputDecoration(
+                              errorStyle: TextStyle(
+                                  color: Colors.redAccent, fontSize: 15.0),
+                              labelText: "Title",
+                              hintText: "Enter the Title",
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0))),
                         ),
-                        Expanded(
-                            child: RaisedButton(
-                          child: Text(
-                            "Delete",
-                            textScaleFactor: 1.5,
-                          ),
-                          textColor: Theme.of(context).primaryColorLight,
-                          color: Theme.of(context).primaryColorDark,
-                          onPressed: () {
-                            setState(() {
-                              debugPrint("Delete Button clicked");
-                              _delete();
-                            });
+                      ),
+                      Padding(
+                        // 2 Element - Description Field
+                        padding: EdgeInsets.only(top: 15.0),
+                        child: TextField(
+                          controller: descriptionController,
+                          style: textStyle,
+                          onChanged: (value) {
+                            debugPrint("The changed value: $value");
+                            updateDescription();
                           },
-                        ))
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            )));
+                          decoration: InputDecoration(
+                              labelText: "Description",
+                              hintText: "Enter the Description",
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5.0))),
+                        ),
+                      ),
+                      Padding(
+                        // 3 Element - Save & Delete Button
+                        padding: EdgeInsets.only(top: 15.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: RaisedButton(
+                              child: Text(
+                                "Save",
+                                textScaleFactor: 1.5,
+                              ),
+                              textColor: Theme.of(context).primaryColorLight,
+                              color: Theme.of(context).primaryColorDark,
+                              onPressed: () {
+                                setState(() {
+                                  if (_formKey.currentState.validate()) {
+                                    debugPrint("Save Button clicked");
+                                    _save();
+                                  }
+                                });
+                              },
+                            )),
+                            Container(
+                              width: 10.0,
+                            ),
+                            Expanded(
+                                child: RaisedButton(
+                              child: Text(
+                                "Delete",
+                                textScaleFactor: 1.5,
+                              ),
+                              textColor: Theme.of(context).primaryColorLight,
+                              color: Theme.of(context).primaryColorDark,
+                              onPressed: () {
+                                setState(() {
+                                  debugPrint("Delete Button clicked");
+                                  _delete();
+                                });
+                              },
+                            ))
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ))));
   }
 
   // Convert String priority in the form of integer before saving it to Database
@@ -186,8 +204,9 @@ class NoteDetailState extends State<NoteDetail> {
 
   // Update the description of Note Object
   void updateDescription() {
-    print("descriptionController.text-------------- $descriptionController.text");
-    note.description  = descriptionController.text;
+    print(
+        "descriptionController.text-------------- $descriptionController.text");
+    note.description = descriptionController.text;
   }
 
   // Save data to Databse
