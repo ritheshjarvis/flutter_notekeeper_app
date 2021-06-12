@@ -211,7 +211,7 @@ class NoteDetailState extends State<NoteDetail> {
 
   // Save data to Databse
   void _save() async {
-    moveToLastScreen();
+    // moveToLastScreen();
     print(note);
     print(note.id);
     note.date = DateFormat.yMMMd().format(DateTime.now());
@@ -240,7 +240,7 @@ class NoteDetailState extends State<NoteDetail> {
   }
 
   void _delete() async {
-    moveToLastScreen();
+    // moveToLastScreen();
     // case 1: If user is trying to delete the NEW NOTE i.e he has come to
     //  the detail page by pressing the FAB of Notelist page
     if (note.id == null) {
@@ -257,12 +257,25 @@ class NoteDetailState extends State<NoteDetail> {
   }
 
   void _showAlertDialog(String title, String message) {
-    AlertDialog alertDialog = AlertDialog(
-      title: Text(title),
-      content: Text(message),
-    );
+    AlertDialog alertDialog =
+        AlertDialog(title: Text(title), content: Text(message), actions: [
+      FlatButton(
+        child: Text("OK"),
+        onPressed: () {
+          Navigator.of(context).pop();
+          moveToLastScreen();
+        },
+      )
+    ]);
     showDialog(context: context, builder: (_) => alertDialog);
   }
+
+  // Widget okButton = FlatButton(
+  //   child: Text("OK"),
+  //   onPressed: () {
+  //     Navigator.of(context).pop();
+  //   },
+  // );
 
   void moveToLastScreen() {
     Navigator.pop(context, true);

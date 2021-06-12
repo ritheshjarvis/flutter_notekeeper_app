@@ -87,7 +87,7 @@ class NoteListState extends State<NoteList> {
   }
 
   getCopyrightString() {
-    return Expanded(
+    return Container(
       // margin: EdgeInsets.only(bottom: 15.0),
       child: Center(
           child:
