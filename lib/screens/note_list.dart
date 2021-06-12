@@ -38,50 +38,70 @@ class NoteListState extends State<NoteList> {
     );
   }
 
-  ListView getListView() {
+  getListView() {
     TextStyle textStyle = Theme.of(context).textTheme.subhead;
 
-    return ListView.builder(
-        itemCount: count,
-        itemBuilder: (BuildContext context, int position) {
-          return Card(
-            color: Colors.white,
-            elevation: 2.0,
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor:
-                    getPriorityColor(this.noteList[position].priority),
-                child: getPriorityIcon(this.noteList[position].priority),
-              ),
-              title: Text(
-                this.noteList[position].title,
-                style: textStyle,
-              ),
-              subtitle: Text(this.noteList[position].date),
-              trailing: GestureDetector(
-                child: Icon(
-                  Icons.delete,
-                  color: Colors.grey,
+    if (count != 0) {
+      return ListView.builder(
+          itemCount: count,
+          itemBuilder: (BuildContext context, int position) {
+            return Card(
+              color: Colors.white,
+              elevation: 2.0,
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor:
+                      getPriorityColor(this.noteList[position].priority),
+                  child: getPriorityIcon(this.noteList[position].priority),
+                ),
+                title: Text(
+                  this.noteList[position].title,
+                  style: textStyle,
+                ),
+                subtitle: Text(this.noteList[position].date),
+                trailing: GestureDetector(
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.grey,
+                  ),
+                  onTap: () {
+                    _delete(context, noteList[position]);
+                  },
                 ),
                 onTap: () {
-                  _delete(context, noteList[position]);
+                  navigateToNoteDetail(this.noteList[position], "Edit Note");
+                  debugPrint("ListTile tapped");
                 },
               ),
-              onTap: () {
-                navigateToNoteDetail(this.noteList[position], "Edit Note");
-                debugPrint("ListTile tapped");
-              },
-            ),
-          );
-        });
+            );
+          });
+    } else {
+      return ListView(children: [
+        getAssetImage(),
+        getCopyrightString()
+        // Center(
+        //     child: Text(" © rithesh_b_rao 2021 ",
+        //         style: TextStyle(fontSize: 15.0)))
+      ]);
+    }
   }
 
-  void navigateToNoteDetail(Note note, String title) async{
-    bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+  getCopyrightString() {
+    return Expanded(
+      // margin: EdgeInsets.only(bottom: 15.0),
+      child: Center(
+          child:
+              Text(" © rithesh_b_rao 2021 ", style: TextStyle(fontSize: 15.0))),
+    );
+  }
+
+  void navigateToNoteDetail(Note note, String title) async {
+    bool result =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return NoteDetail(note, title);
     }));
 
-    if (result == true){
+    if (result == true) {
       updateListView();
     }
   }
@@ -142,5 +162,16 @@ class NoteListState extends State<NoteList> {
         });
       });
     });
+  }
+
+  Widget getAssetImage() {
+    AssetImage assetImage = AssetImage('images/note_img.png');
+    Image image = Image(
+      image: assetImage,
+    );
+    return Container(
+      padding: EdgeInsets.all(30.0),
+      child: image,
+    );
   }
 }
